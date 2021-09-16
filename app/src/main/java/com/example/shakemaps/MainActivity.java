@@ -5,6 +5,8 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity
     private SensorManager sensorManager;
     private Sensor sensor;
     private SensorEventListener sensorEventListener;
+    private MainActivityViewModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -36,23 +39,42 @@ public class MainActivity extends AppCompatActivity
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        if(sensor == null)
+
+        model = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(MainActivityViewModel.class);
+
+        model.getStatusSensorMutable().observe(this, new Observer<String>()
         {
-            finish();
-        }
+            @Override
+            public void onChanged(String s)
+            {
+                finish();
+            }
+        });
+
+        model.getAgiteMutable().observe(this, new Observer<String>()
+        {
+            @Override
+            public void onChanged(String s)
+            {
+                Intent intent = new Intent(MainActivity.this, PositionMaps.class);
+                startActivity(intent);
+            }
+        });
+
+        model.status(sensor);
 
         sensorEventListener = new SensorEventListener()
         {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent)
             {
-                float s = sensorEvent.values[0];
+                float x = sensorEvent.values[0];
+                float y = sensorEvent.values[1];
+                float z = sensorEvent.values[2];
 
-                if(s < -5 || s> 5)
-                {
-                    Intent intent = new Intent(MainActivity.this, PositionMaps.class);
-                    startActivity(intent);
-                }
+                long curTime = System.currentTimeMillis();
+                model.sensorAgite(x,y,z,curTime);
+
             }
 
             @Override

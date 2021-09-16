@@ -45,14 +45,15 @@ public class PositionMaps extends FragmentActivity
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         client = LocationServices.getFusedLocationProviderClient(this);
 
-            getMyLocation();
+        getMyLocation();
     }
 
     private void getMyLocation()
     {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED)
+        {
 
             return;
         }
@@ -63,8 +64,6 @@ public class PositionMaps extends FragmentActivity
             @Override
             public void onSuccess(Location location)
             {
-                if(location != null)
-                {
                     supportMapFragment.getMapAsync(new OnMapReadyCallback()
                     {
                         @Override
@@ -95,7 +94,6 @@ public class PositionMaps extends FragmentActivity
                             googleMap.addMarker(options);
                         }
                     });
-                }
             }
         });
     }
